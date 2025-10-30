@@ -1,7 +1,35 @@
-'use client';
-import { useEffect, useState } from 'react';
+"use client";
+// Project Detail Modal
+type PortfolioItem = { src: string; alt: string; cat: string };
+type ProjectModalProps = {
+  open: boolean;
+  onClose: () => void;
+  project: PortfolioItem | null;
+};
+function ProjectModal({ open, onClose, project }: ProjectModalProps) {
+  if (!open || !project) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in" role="dialog" aria-modal="true">
+      <div className="bg-white dark:bg-[#181b20] rounded-2xl shadow-2xl max-w-lg w-full p-6 relative animate-fade-in-up">
+        <button onClick={onClose} aria-label="Close project details" className="absolute top-3 right-3 text-2xl text-gray-400 hover:text-teal-500 focus:outline-none">&times;</button>
+        <img src={project.src} alt={project.alt} className="w-full h-48 object-cover rounded-xl mb-4" />
+        <h3 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">{project.alt}</h3>
+        <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-teal-600/90 text-white shadow mb-3">{project.cat.charAt(0).toUpperCase() + project.cat.slice(1)}</span>
+        <p className="text-gray-700 dark:text-gray-300 mb-4">This is a sample project description. You can add more details here, such as technologies used, project links, or a summary.</p>
+        <a href="#contact" className="btn-primary px-6 py-2 rounded-full">Contact for similar work</a>
+      </div>
+    </div>
+  );
+}
+import { useEffect, useState, useRef } from 'react';
 
 import ThemeToggle from './ThemeToggle';
+
+const heroSlides = [
+  'https://images.pexels.com/photos/14876122/pexels-photo-14876122.jpeg',
+  'https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg',
+  'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg',
+];
 
 const portfolioItems = [
   { src: 'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg', alt: 'Minimal product', cat: 'branding' },
@@ -21,10 +49,14 @@ const testimonials = [
 ];
 
 export default function HomePage() {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalProject, setModalProject] = useState<PortfolioItem | null>(null);
   const [filter, setFilter] = useState('all');
   const [slideIndex, setSlideIndex] = useState(0);
+  const [heroIndex, setHeroIndex] = useState(0);
   const [formStatus, setFormStatus] = useState('');
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
+  // Removed heroTimer and auto-advance for hero slider; now only manual change
 
   useEffect(() => {
     const handleScroll = () => {
@@ -63,11 +95,13 @@ export default function HomePage() {
   };
 
   return (
-  <main className="font-sans scroll-smooth bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+  <main className="font-sans scroll-smooth bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
       {/* Header */}
-  <header id="site-header" className="fixed top-0 left-0 right-0 z-50 transition-all bg-gray-100/90 dark:bg-gray-900/80 backdrop-blur border-b border-gray-200 dark:border-gray-800">
+  <header id="site-header" className="fixed top-0 left-0 right-0 z-50 transition-all bg-slate-800/80 dark:bg-gray-900/80 backdrop-blur border-b border-gray-200 dark:border-gray-800">
         <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
-          <a href="#hero" className="font-bold text-teal-700 dark:text-teal-300">Axtrics</a>
+          <a href="#hero" className="flex items-center h-12">
+            <img src="/logo.png" alt="Company Logo" className="h-12 w-auto" />
+          </a>
           <nav className="hidden md:flex gap-6">
             {['about', 'services', 'portfolio', 'testimonials', 'contact'].map((id) => (
               <a key={id} href={`#${id}`} className="hover:text-teal-600 dark:hover:text-teal-300 transition-colors">{id.charAt(0).toUpperCase() + id.slice(1)}</a>
@@ -78,27 +112,72 @@ export default function HomePage() {
       </header>
 
       {/* Hero */}
-  <section id="hero" className="relative min-h-[84vh] grid items-end bg-gradient-to-b from-sky-100 to-white dark:from-black dark:to-gray-900">
-  <div
-    className="absolute inset-0 bg-cover bg-center"
-    style={{
-      backgroundImage: `url('https://images.pexels.com/photos/14876122/pexels-photo-14876122.jpeg')`,
-      filter: typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
-        ? 'brightness(0.7) blur(0.5px)'
-        : 'none'
-    }}
-  />
-  <div className="absolute inset-0 bg-gradient-to-b from-sky-100/80 via-white/70 to-white/0 dark:from-black/40 dark:via-black/60 dark:to-black/80" />
-        <div className="relative px-6 pb-24 pt-32 max-w-[1200px] mx-auto">
-          <p className="font-semibold opacity-95 text-gray-800 dark:text-gray-200 drop-shadow-lg">Hello...</p>
-          <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mt-2 mb-3 text-gray-900 dark:text-white drop-shadow-lg">I'm a Web Designer</h1>
-          <p className="text-xl md:text-2xl font-bold text-black dark:text-gray-300 max-w-xl mt-2 mb-6">I craft delightful, performant websites and brands.</p>
-          <div className="flex gap-3 mt-5">
-            <a href="#portfolio" className="btn-primary">View Portfolio</a>
-            <a href="#contact" className="btn-ghost">Hire Me</a>
-          </div>
-        </div>
-      </section>
+  <section id="hero" className="relative min-h-[84vh] grid items-end bg-gradient-to-b from-gray-100 to-gray-50 dark:from-black dark:to-gray-900">
+    {/* Company Logo */}
+    <div className="absolute top-8 left-8 z-20">
+      <img src="./logo.png1" alt="Company Logo" className="h-12 w-auto drop-shadow-lg" />
+    </div>
+    {/* Hero Slider Images */}
+    {heroSlides.map((img, idx) => (
+      <div
+        key={img}
+        className={`absolute inset-0 bg-cover bg-center transition-opacity duration-700 ${heroIndex === idx ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+        style={{
+          backgroundImage: `url('${img}')`,
+          opacity: 0.85, // 3. reduce image opacity
+          filter: typeof window !== 'undefined' && !window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'blur(1px) contrast(0.95)' // 4. blur/contrast in light mode
+            : 'none'
+        }}
+        aria-hidden={heroIndex !== idx}
+      />
+    ))}
+  <div className="absolute inset-0 z-10 pointer-events-none">
+      {/* 1 & 2: Stronger white gradient overlay, white to transparent */}
+      <div className="block dark:hidden absolute inset-0 bg-gradient-to-b from-white/90 via-white/70 to-white/0" />
+      {/* Dark mode: black gradient overlay */}
+      <div className="hidden dark:block absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/80" />
+    </div>
+    {/* Slider Controls */}
+  <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4">
+      {/* Left arrow */}
+      <button
+        onClick={() => setHeroIndex((prev) => (prev - 1 + heroSlides.length) % heroSlides.length)}
+        className="group w-10 h-10 flex items-center justify-center rounded-full bg-white/80 hover:bg-white/100 shadow-lg border border-gray-300 text-gray-700 text-2xl font-bold transition-all duration-200 ease-in-out transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-teal-400/50"
+        aria-label="Previous slide"
+      >
+        <span className="inline-block transition-transform duration-200 group-hover:-translate-x-1">&#8592;</span>
+      </button>
+      {/* Dots */}
+      <div className="flex gap-2">
+        {heroSlides.map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => setHeroIndex(idx)}
+            className={`w-3 h-3 rounded-full border-2 ${heroIndex === idx ? 'bg-teal-500 border-teal-700' : 'bg-white/70 border-gray-300'} transition`}
+            aria-label={`Go to slide ${idx + 1}`}
+          />
+        ))}
+      </div>
+      {/* Right arrow */}
+      <button
+        onClick={() => setHeroIndex((prev) => (prev + 1) % heroSlides.length)}
+        className="group w-10 h-10 flex items-center justify-center rounded-full bg-white/80 hover:bg-white/100 shadow-lg border border-gray-300 text-gray-700 text-2xl font-bold transition-all duration-200 ease-in-out transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-teal-400/50"
+        aria-label="Next slide"
+      >
+        <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">&#8594;</span>
+      </button>
+    </div>
+    <div className="relative px-6 pb-24 pt-32 max-w-[1200px] mx-auto z-30">
+      <p className="font-semibold opacity-95 text-gray-800 dark:text-gray-200 drop-shadow-lg [text-shadow:0_2px_8px_rgba(255,255,255,0.7)] dark:[text-shadow:0_2px_8px_rgba(0,0,0,0.7)]">Hello...</p>
+      <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mt-2 mb-3 text-gray-900 dark:text-white drop-shadow-lg [text-shadow:0_2px_12px_rgba(255,255,255,0.8)] dark:[text-shadow:0_2px_12px_rgba(0,0,0,0.8)]">I'm a Web Designer</h1>
+      <p className="text-xl md:text-2xl font-bold text-black dark:text-gray-300 max-w-xl mt-2 mb-6 [text-shadow:0_2px_8px_rgba(255,255,255,0.7)] dark:[text-shadow:0_2px_8px_rgba(0,0,0,0.7)]">I craft delightful, performant websites and brands.</p>
+      <div className="flex gap-3 mt-5">
+        <a href="#portfolio" className="btn-primary">View Portfolio</a>
+        <a href="#contact" className="btn-ghost">Hire Me</a>
+      </div>
+    </div>
+  </section>
 
       {/* About */}
   <section id="about" className="py-16 bg-gray-100 dark:bg-[#0e1117] fade-in-up">
@@ -138,36 +217,73 @@ export default function HomePage() {
       </section>
 
       {/* Portfolio */}
-  <section id="portfolio" className="py-16 bg-gray-100 dark:bg-[#0e1117] fade-in-up">
-        <div className="max-w-[1200px] mx-auto px-6 text-center">
-          {/* Portfolio Tabs */}
-            <div className="flex justify-center gap-2 mb-6">
-            {['all', 'branding', 'web', 'photography'].map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setFilter(cat)}
-                  className={`px-4 py-2 rounded-full border transition-colors ${
-                    filter === cat
-                      ? 'bg-teal-600/20 border-teal-500 text-teal-700 dark:bg-teal-900/30 dark:border-teal-400 dark:text-teal-300'
-                      : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-teal-400 hover:text-teal-600 dark:hover:text-teal-300'
-                  }`}
-              >
-                {cat.charAt(0).toUpperCase() + cat.slice(1)}
-              </button>
-            ))}
+  <section id="portfolio" className="py-20 bg-gray-100 dark:bg-[#0e1117] fade-in-up">
+    <div className="max-w-[1200px] mx-auto px-6">
+      <h2 className="text-3xl font-extrabold mb-2 text-gray-900 dark:text-white text-center">Portfolio</h2>
+      <p className="text-gray-500 dark:text-gray-400 mb-8 text-center">Selected projects and case studies</p>
+      {/* Filter Chips */}
+      <div className="flex flex-wrap justify-center gap-3 mb-10 animate-fade-in-up">
+        {['all', 'branding', 'web', 'photography'].map((cat, idx) => (
+          <button
+            key={cat}
+            onClick={() => setFilter(cat)}
+            className={`flex items-center gap-2 px-5 py-2 rounded-full border-2 font-medium shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-teal-400/50
+              ${filter === cat
+                ? 'bg-teal-600/90 border-teal-600 text-white dark:bg-teal-500 dark:border-teal-400 dark:text-gray-900 scale-105'
+                : 'bg-white/80 border-gray-200 text-gray-700 dark:bg-[#181b20] dark:border-gray-700 dark:text-gray-300 hover:border-teal-400 hover:text-teal-600 dark:hover:text-teal-300'}
+            `}
+            style={{ animationDelay: `${idx * 60}ms` }}
+          >
+            {cat === 'branding' && <span>🎯</span>}
+            {cat === 'web' && <span>💻</span>}
+            {cat === 'photography' && <span>📸</span>}
+            {cat === 'all' && <span>🌐</span>}
+            <span className="capitalize">{cat}</span>
+          </button>
+        ))}
+      </div>
+      {/* Portfolio Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+        {filteredItems.map((item, i) => (
+          <div
+            key={i}
+            className="flip-card animate-fade-in-up"
+            tabIndex={0}
+            aria-label={`View details for ${item.alt}`}
+            style={{ animationDelay: `${i * 80}ms` }}
+          >
+            <div className="flip-card-inner">
+              {/* Front */}
+              <div className="flip-card-front group relative rounded-2xl overflow-hidden border-2 border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-[#181b20] shadow-md">
+                <img
+                  src={item.src}
+                  alt={item.alt}
+                  className="w-full h-56 object-cover transition-transform duration-300 rounded-t-2xl"
+                />
+                <div className="absolute bottom-0 left-0 right-0 p-4 flex flex-col gap-2 z-10">
+                  <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-teal-600/90 text-white shadow-md mb-2 w-fit">
+                    {item.cat.charAt(0).toUpperCase() + item.cat.slice(1)}
+                  </span>
+                  <h3 className="text-lg font-bold text-white drop-shadow-lg">{item.alt}</h3>
+                </div>
+              </div>
+              {/* Back */}
+              <div className="flip-card-back rounded-2xl border-2 border-teal-500 bg-gradient-to-br from-teal-600 to-teal-400 flex flex-col items-center justify-center p-6 text-white">
+                <h3 className="text-xl font-bold mb-2">{item.alt}</h3>
+                <p className="text-sm mb-4 text-center">This is a sample project description. You can add more details here, such as technologies used, project links, or a summary.</p>
+                <a href="#contact" className="btn-primary btn-animated px-6 py-2 rounded-full">Contact for similar work</a>
+              </div>
+            </div>
           </div>
-
-          {/* Portfolio Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {filteredItems.map((item, i) => (
-                <figure key={i} className="relative rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition">
-                <img src={item.src} alt={item.alt} className="w-full h-full object-cover saturate-[.9]" />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/40 opacity-0 hover:opacity-100 transition" />
-              </figure>
-            ))}
-          </div>
-        </div>
-      </section>
+        ))}
+      </div>
+      <ProjectModal open={modalOpen} onClose={() => setModalOpen(false)} project={modalProject} />
+      {/* Call to Action */}
+      <div className="flex justify-center mt-10 animate-fade-in-up">
+        <a href="#contact" className="btn-primary btn-animated text-lg px-8 py-3 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400/50">Contact for Project</a>
+      </div>
+    </div>
+  </section>
 
       {/* Testimonials */}
   <section id="testimonials" className="py-16 bg-gray-100 dark:bg-[#0e1117] fade-in-up">
