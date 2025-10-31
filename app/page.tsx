@@ -26,9 +26,24 @@ import { useEffect, useState, useRef } from 'react';
 import ThemeToggle from './ThemeToggle';
 
 const heroSlides = [
-  'https://images.pexels.com/photos/14876122/pexels-photo-14876122.jpeg',
-  'https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg',
-  'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg',
+  {
+    img: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c',
+    heading: "I'm a Web Designer",
+    subheading: 'Hello...!',
+    desc: 'I craft delightful, performant websites and brands.'
+  },
+  {
+    img: 'https://images.unsplash.com/photo-1521737852567-6949f3f9f2b5',
+    heading: "Branding & Identity",
+    subheading: 'Let’s build your brand',
+    desc: 'From logo to launch, I help brands stand out and connect.'
+  },
+  {
+    img: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6',
+    heading: "Modern Web Development",
+    subheading: 'Performance meets beauty',
+    desc: 'Fast, accessible, and beautiful websites for your business.'
+  },
 ];
 
 const portfolioItems = [
@@ -97,14 +112,14 @@ export default function HomePage() {
   return (
   <main className="font-sans scroll-smooth bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
       {/* Header */}
-  <header id="site-header" className="fixed top-0 left-0 right-0 z-50 transition-all bg-slate-800/80 dark:bg-gray-900/80 backdrop-blur border-b border-gray-200 dark:border-gray-800">
+  <header id="site-header" className="fixed top-0 left-0 right-0 z-50 transition-all bg-slate-800/80 dark:bg-gray-900/80 backdrop-blur border-b border-gray-200 dark:border-gray-800 text-white">
         <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
           <a href="#hero" className="flex items-center h-12">
             <img src="/logo.png" alt="Company Logo" className="h-12 w-auto" />
           </a>
           <nav className="hidden md:flex gap-6">
             {['about', 'services', 'portfolio', 'testimonials', 'contact'].map((id) => (
-              <a key={id} href={`#${id}`} className="hover:text-teal-600 dark:hover:text-teal-300 transition-colors">{id.charAt(0).toUpperCase() + id.slice(1)}</a>
+              <a key={id} href={`#${id}`} className="text-white hover:text-teal-300 dark:hover:text-teal-300 transition-colors">{id.charAt(0).toUpperCase() + id.slice(1)}</a>
             ))}
           </nav>
           <ThemeToggle />
@@ -112,29 +127,27 @@ export default function HomePage() {
       </header>
 
       {/* Hero */}
-  <section id="hero" className="relative min-h-[84vh] grid items-end bg-gradient-to-b from-gray-100 to-gray-50 dark:from-black dark:to-gray-900">
+  <section id="hero" className="relative min-h-[84vh] flex items-center justify-center bg-gradient-to-b from-gray-100 to-gray-50 dark:from-black dark:to-gray-900">
     {/* Company Logo */}
     <div className="absolute top-8 left-8 z-20">
       <img src="./logo.png1" alt="Company Logo" className="h-12 w-auto drop-shadow-lg" />
     </div>
     {/* Hero Slider Images */}
-    {heroSlides.map((img, idx) => (
+    {heroSlides.map((slide, idx) => (
       <div
-        key={img}
+        key={slide.img}
         className={`absolute inset-0 bg-cover bg-center transition-opacity duration-700 ${heroIndex === idx ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
         style={{
-          backgroundImage: `url('${img}')`,
-          opacity: 0.85, // 3. reduce image opacity
-          filter: typeof window !== 'undefined' && !window.matchMedia('(prefers-color-scheme: dark)').matches
-            ? 'blur(1px) contrast(0.95)' // 4. blur/contrast in light mode
-            : 'none'
+          backgroundImage: `url('${slide.img}')`,
+          opacity: 0.92,
+          filter: 'none'
         }}
         aria-hidden={heroIndex !== idx}
       />
     ))}
   <div className="absolute inset-0 z-10 pointer-events-none">
-      {/* 1 & 2: Stronger white gradient overlay, white to transparent */}
-      <div className="block dark:hidden absolute inset-0 bg-gradient-to-b from-white/90 via-white/70 to-white/0" />
+  {/* 1 & 2: Softer white gradient overlay, white to transparent */}
+  <div className="block dark:hidden absolute inset-0 bg-gradient-to-b from-white/60 via-white/30 to-white/0" />
       {/* Dark mode: black gradient overlay */}
       <div className="hidden dark:block absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/80" />
     </div>
@@ -168,11 +181,11 @@ export default function HomePage() {
         <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">&#8594;</span>
       </button>
     </div>
-    <div className="relative px-6 pb-24 pt-32 max-w-[1200px] mx-auto z-30">
-      <p className="font-semibold opacity-95 text-gray-800 dark:text-gray-200 drop-shadow-lg [text-shadow:0_2px_8px_rgba(255,255,255,0.7)] dark:[text-shadow:0_2px_8px_rgba(0,0,0,0.7)]">Hello...</p>
-      <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mt-2 mb-3 text-gray-900 dark:text-white drop-shadow-lg [text-shadow:0_2px_12px_rgba(255,255,255,0.8)] dark:[text-shadow:0_2px_12px_rgba(0,0,0,0.8)]">I'm a Web Designer</h1>
-      <p className="text-xl md:text-2xl font-bold text-black dark:text-gray-300 max-w-xl mt-2 mb-6 [text-shadow:0_2px_8px_rgba(255,255,255,0.7)] dark:[text-shadow:0_2px_8px_rgba(0,0,0,0.7)]">I craft delightful, performant websites and brands.</p>
-      <div className="flex gap-3 mt-5">
+  <div className="relative flex flex-col items-center justify-center text-center px-6 max-w-[1200px] mx-auto z-30 w-full">
+      <p className="font-semibold opacity-95 text-gray-800 dark:text-gray-200 drop-shadow-lg [text-shadow:0_2px_8px_rgba(255,255,255,0.7)] dark:[text-shadow:0_2px_8px_rgba(0,0,0,0.7)]">{heroSlides[heroIndex].subheading}</p>
+      <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mt-2 mb-3 text-gray-900 dark:text-white drop-shadow-lg [text-shadow:0_2px_12px_rgba(255,255,255,0.8)] dark:[text-shadow:0_2px_12px_rgba(0,0,0,0.8)]">{heroSlides[heroIndex].heading}</h1>
+      <p className="text-xl md:text-2xl font-bold text-black dark:text-gray-300 max-w-xl mt-2 mb-6 [text-shadow:0_2px_8px_rgba(255,255,255,0.7)] dark:[text-shadow:0_2px_8px_rgba(0,0,0,0.7)]">{heroSlides[heroIndex].desc}</p>
+      <div className="flex gap-3 mt-5 justify-center">
         <a href="#portfolio" className="btn-primary">View Portfolio</a>
         <a href="#contact" className="btn-ghost">Hire Me</a>
       </div>
