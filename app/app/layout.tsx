@@ -13,6 +13,7 @@
 //   );
 // }
 
+import '../(frontend)/styles.css'
 import './globals.css'
 import { ThemeProvider } from './providers/Theme'
 

@@ -1,3 +1,62 @@
+// import { headers as getHeaders } from 'next/headers.js'
+// import Image from 'next/image'
+// import { getPayload } from 'payload'
+// import React from 'react'
+// import { fileURLToPath } from 'url'
+
+// import config from '@/payload.config'
+// import './styles.css'
+
+// export default async function HomePage() {
+//   const headers = await getHeaders()
+//   const payloadConfig = await config
+//   const payload = await getPayload({ config: payloadConfig })
+//   const { user } = await payload.auth({ headers })
+
+//   const fileURL = `vscode://file/${fileURLToPath(import.meta.url)}`
+
+//   return (
+//     <div className="home">
+//       <div className="content">
+//         <picture>
+//           <source srcSet="https://raw.githubusercontent.com/payloadcms/payload/main/packages/ui/src/assets/payload-favicon.svg" />
+//           <Image
+//             alt="Payload Logo"
+//             height={65}
+//             src="https://raw.githubusercontent.com/payloadcms/payload/main/packages/ui/src/assets/payload-favicon.svg"
+//             width={65}
+//           />
+//         </picture>
+//         {!user && <h1>Welcome to your new project.</h1>}
+//         {user && <h1>Welcome back, {user.email}</h1>}
+//         <div className="links">
+//           <a
+//             className="admin"
+//             href={payloadConfig.routes.admin}
+//             rel="noopener noreferrer"
+//             target="_blank"
+//           >
+//             Go to admin panel
+//           </a>
+//           <a
+//             className="docs"
+//             href="https://payloadcms.com/docs"
+//             rel="noopener noreferrer"
+//             target="_blank"
+//           >
+//             Documentation
+//           </a>
+//         </div>
+//       </div>
+//       <div className="footer">
+//         <p>Update this page by editing</p>
+//         <a className="codeLink" href={fileURL}>
+//           <code>app/(frontend)/page.tsx</code>
+//         </a>
+//       </div>
+//     </div>
+//   )
+// }
 "use client";
 // Project Detail Modal
 type PortfolioItem = { src: string; alt: string; cat: string };
@@ -21,30 +80,17 @@ function ProjectModal({ open, onClose, project }: ProjectModalProps) {
     </div>
   );
 }
+
 import { useEffect, useState, useRef } from 'react';
+import ThemeToggle from '../(frontend)/ThemeToggle';
 
-import ThemeToggle from './ThemeToggle';
-
-const heroSlides = [
-  {
-    img: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c',
-    heading: "I'm a Web Designer",
-    subheading: 'Hello...!',
-    desc: 'I craft delightful, performant websites and brands.'
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1521737852567-6949f3f9f2b5',
-    heading: "Branding & Identity",
-    subheading: 'Let’s build your brand',
-    desc: 'From logo to launch, I help brands stand out and connect.'
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6',
-    heading: "Modern Web Development",
-    subheading: 'Performance meets beauty',
-    desc: 'Fast, accessible, and beautiful websites for your business.'
-  },
-];
+type HeroSlide = {
+  id: string;
+  img: string;
+  heading: string;
+  subheading?: string;
+  desc?: string;
+};
 
 const portfolioItems = [
   { src: 'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg', alt: 'Minimal product', cat: 'branding' },
@@ -63,7 +109,15 @@ const testimonials = [
   { quote: '“The new brand system elevated our presence across all channels.”', author: 'Haruto Sato — Founder, Novum', img: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg' },
 ];
 
+
 export default function HomePage() {
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
+  useEffect(() => {
+    fetch('http://localhost:3000/api/hero-slides') // Adjust port if needed
+      .then(res => res.json())
+      .then(data => setHeroSlides(data.docs || []));
+  }, []);
+
   const [modalOpen, setModalOpen] = useState(false);
   const [modalProject, setModalProject] = useState<PortfolioItem | null>(null);
   const [filter, setFilter] = useState('all');
@@ -181,14 +235,18 @@ export default function HomePage() {
         <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">&#8594;</span>
       </button>
     </div>
-  <div className="relative flex flex-col items-center justify-center text-center px-6 max-w-[1200px] mx-auto z-30 w-full">
-      <p className="font-semibold opacity-95 text-gray-800 dark:text-gray-200 drop-shadow-lg [text-shadow:0_2px_8px_rgba(255,255,255,0.7)] dark:[text-shadow:0_2px_8px_rgba(0,0,0,0.7)]">{heroSlides[heroIndex].subheading}</p>
-      <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mt-2 mb-3 text-gray-900 dark:text-white drop-shadow-lg [text-shadow:0_2px_12px_rgba(255,255,255,0.8)] dark:[text-shadow:0_2px_12px_rgba(0,0,0,0.8)]">{heroSlides[heroIndex].heading}</h1>
-      <p className="text-xl md:text-2xl font-bold text-black dark:text-gray-300 max-w-xl mt-2 mb-6 [text-shadow:0_2px_8px_rgba(255,255,255,0.7)] dark:[text-shadow:0_2px_8px_rgba(0,0,0,0.7)]">{heroSlides[heroIndex].desc}</p>
-      <div className="flex gap-3 mt-5 justify-center">
-        <a href="#portfolio" className="btn-primary">View Portfolio</a>
-        <a href="#contact" className="btn-ghost">Hire Me</a>
-      </div>
+    <div className="relative flex flex-col items-center justify-center text-center px-6 max-w-[1200px] mx-auto z-30 w-full">
+      {heroSlides[heroIndex] && (
+        <>
+          <p className="font-semibold opacity-95 text-gray-800 dark:text-gray-200 drop-shadow-lg [text-shadow:0_2px_8px_rgba(255,255,255,0.7)] dark:[text-shadow:0_2px_8px_rgba(0,0,0,0.7)]">{heroSlides[heroIndex].subheading}</p>
+          <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mt-2 mb-3 text-gray-900 dark:text-white drop-shadow-lg [text-shadow:0_2px_12px_rgba(255,255,255,0.8)] dark:[text-shadow:0_2px_12px_rgba(0,0,0,0.8)]">{heroSlides[heroIndex].heading}</h1>
+          <p className="text-xl md:text-2xl font-bold text-black dark:text-gray-300 max-w-xl mt-2 mb-6 [text-shadow:0_2px_8px_rgba(255,255,255,0.7)] dark:[text-shadow:0_2px_8px_rgba(0,0,0,0.7)]">{heroSlides[heroIndex].desc}</p>
+          <div className="flex gap-3 mt-5 justify-center">
+            <a href="#portfolio" className="btn-primary">View Portfolio</a>
+            <a href="#contact" className="btn-ghost">Hire Me</a>
+          </div>
+        </>
+      )}
     </div>
   </section>
 
